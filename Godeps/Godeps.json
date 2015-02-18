@@ -1,0 +1,44 @@
+{
+	"ImportPath": "github.com/b0d0nne11/scroll-test-project",
+	"GoVersion": "go1.3.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "8a875a034c69b940914d83ea03d3f1299b4d094b"
+		},
+		{
+			"ImportPath": "github.com/mailgun/go-etcd/etcd",
+			"Comment": "v0.2.0-rc1-124-g248e96a",
+			"Rev": "248e96a4ad7adfa23b531eb2d8e80d9050c33d24"
+		},
+		{
+			"ImportPath": "github.com/mailgun/iptools",
+			"Rev": "fac48f4f8a866e6fd74ecd4cc74f01fe36e6ef9c"
+		},
+		{
+			"ImportPath": "github.com/mailgun/log",
+			"Rev": "b65e83b83bfde331a05016a6bb8055cc96695c30"
+		},
+		{
+			"ImportPath": "github.com/mailgun/manners",
+			"Comment": "0.3.1-19-g12f1b91",
+			"Rev": "12f1b911a179b472980f386c2e1e786d19f42da4"
+		},
+		{
+			"ImportPath": "github.com/mailgun/metrics",
+			"Rev": "2b3c4565aafdcd40c8069e50de08ac5379787943"
+		},
+		{
+			"ImportPath": "github.com/mailgun/scroll",
+			"Rev": "c33949cbf905969d74b2fbb22a1490319cea2d14"
+		},
+		{
+			"ImportPath": "github.com/mailgun/timetools",
+			"Rev": "7e6055773c5137efbeb3bd2410d705fe10ab6bfd"
+		}
+	]
+}
