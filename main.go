@@ -60,9 +60,9 @@ func main() {
 
 	// List charges
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/chages/"},
-		RawHandler: http.HandlerFunc(ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/charges/"},
+		Handler: ListCharges,
 	})
 	// Get charge
 	app.AddHandler(scroll.Spec{

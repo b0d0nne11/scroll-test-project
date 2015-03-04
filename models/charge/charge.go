@@ -75,3 +75,28 @@ func Get(db *sql.DB, id int64) (Charge, error) {
 
 	return c, nil
 }
+
+func List(db *sql.DB, last int64, limit int64) ([]Charge, error) {
+	var cl []Charge
+
+	stmt, err := db.Prepare("SELECT id, cents, timestamp FROM charge WHERE id > ? LIMIT ?")
+	if err != nil {
+		fmt.Printf("error preparing statement: %v\n", err)
+		return cl, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(last, limit)
+	if err != nil {
+		fmt.Printf("error listing charges(%v, %v)", last, limit)
+		return cl, err
+	}
+
+	for rows.Next() {
+		var c Charge
+		rows.Scan(&c.ID, &c.Cents, &c.Timestamp)
+		cl = append(cl, c)
+	}
+
+	return cl, nil
+}

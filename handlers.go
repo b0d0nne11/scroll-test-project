@@ -48,3 +48,9 @@ func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string)
 
 	return c, err
 }
+
+func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+	cl, err := charge.List(db, 0, 100)
+
+	return cl, err
+}
