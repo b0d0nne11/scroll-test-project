@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/b0d0nne11/scroll-test-project/db"
 	"github.com/mailgun/scroll"
 )
 
@@ -24,8 +25,10 @@ func New(accountID int64, cents uint64, timestamp time.Time) Charge {
 	}
 }
 
-func (c *Charge) Save(db *sql.DB) error {
-	stmt, err := db.Prepare("INSERT INTO charge (account_id, cents, timestamp) VALUES ( ?, ?, ? )")
+func (c *Charge) Save() error {
+	dbh, _ := db.Get()
+
+	stmt, err := dbh.Prepare("INSERT INTO charge (account_id, cents, timestamp) VALUES ( ?, ?, ? )")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
 		return err
@@ -46,10 +49,12 @@ func (c *Charge) Save(db *sql.DB) error {
 	return nil
 }
 
-func GetBy(db *sql.DB, k string, v string) (Charge, error) {
+func GetBy(k string, v string) (Charge, error) {
+	dbh, _ := db.Get()
+
 	var c Charge
 
-	stmt, err := db.Prepare(fmt.Sprintf("SELECT id, account_id, cents, timestamp FROM charge WHERE %v = ?", k))
+	stmt, err := dbh.Prepare(fmt.Sprintf("SELECT id, account_id, cents, timestamp FROM charge WHERE %v = ?", k))
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
 		return c, err
@@ -70,14 +75,16 @@ func GetBy(db *sql.DB, k string, v string) (Charge, error) {
 	return c, nil
 }
 
-func Get(db *sql.DB, id int64) (Charge, error) {
-	return GetBy(db, "id", strconv.FormatInt(id, 10))
+func Get(id int64) (Charge, error) {
+	return GetBy("id", strconv.FormatInt(id, 10))
 }
 
-func List(db *sql.DB, last int64, limit int64) ([]Charge, error) {
+func List(last int64, limit int64) ([]Charge, error) {
+	dbh, _ := db.Get()
+
 	var cl = make([]Charge, 0, limit)
 
-	stmt, err := db.Prepare("SELECT id, account_id, cents, timestamp FROM charge WHERE id > ? LIMIT ?")
+	stmt, err := dbh.Prepare("SELECT id, account_id, cents, timestamp FROM charge WHERE id > ? LIMIT ?")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
 		return cl, err

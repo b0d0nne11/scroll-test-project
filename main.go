@@ -4,13 +4,13 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/b0d0nne11/scroll-test-project/db"
 	"github.com/mailgun/scroll"
 	"github.com/mailgun/scroll/registry"
 )
 
 var host *string = flag.String("h", "0.0.0.0", "Address to listen on")
 var port *int = flag.Int("p", 8080, "Port to listen on")
-var dbconn *string = flag.String("db", "username:password@address/database", "Database connection string")
 
 func main() {
 	// Parse command line options
@@ -25,12 +25,12 @@ func main() {
 	}
 	app := scroll.NewAppWithConfig(appConfig)
 
-	// Create a db pool
-	db, err := GetDB()
+	// Create the db pool
+	dbh, err := db.Get()
 	if err != nil {
 		panic(fmt.Sprintf("error connecting to db: %v\n", err))
 	}
-	defer db.Close()
+	defer dbh.Close()
 
 	// List accounts
 	app.AddHandler(scroll.Spec{

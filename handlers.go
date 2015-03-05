@@ -31,15 +31,15 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 	}
 	aName := r.FormValue("account_name")
 
-	a, err := account.GetBy(db, "name", aName)
+	a, err := account.GetBy("name", aName)
 	switch err.(type) {
 	case scroll.NotFoundError:
 		a = account.New(aName)
-		err = a.Save(db)
+		err = a.Save()
 	}
 
 	c := charge.New(a.ID, cents, timestamp)
-	err = c.Save(db)
+	err = c.Save()
 
 	return c, err
 }
@@ -53,13 +53,13 @@ func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string)
 		}
 	}
 
-	c, err := charge.Get(db, id)
+	c, err := charge.Get(id)
 
 	return c, err
 }
 
 func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	cl, err := charge.List(db, 0, 100)
+	cl, err := charge.List(0, 100)
 
 	return cl, err
 }
@@ -73,13 +73,13 @@ func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string
 		}
 	}
 
-	a, err := account.Get(db, id)
+	a, err := account.Get(id)
 
 	return a, err
 }
 
 func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	al, err := account.List(db, 0, 100)
+	al, err := account.List(0, 100)
 
 	return al, err
 }

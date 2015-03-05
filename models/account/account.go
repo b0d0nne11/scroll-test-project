@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/b0d0nne11/scroll-test-project/db"
 	"github.com/mailgun/scroll"
 )
 
@@ -19,8 +20,10 @@ func New(name string) Account {
 	}
 }
 
-func (a *Account) Save(db *sql.DB) error {
-	stmt, err := db.Prepare("INSERT INTO account (name) VALUES ( ? )")
+func (a *Account) Save() error {
+	dbh, _ := db.Get()
+
+	stmt, err := dbh.Prepare("INSERT INTO account (name) VALUES ( ? )")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
 		return err
@@ -41,10 +44,12 @@ func (a *Account) Save(db *sql.DB) error {
 	return nil
 }
 
-func GetBy(db *sql.DB, k string, v string) (Account, error) {
+func GetBy(k string, v string) (Account, error) {
+	dbh, _ := db.Get()
+
 	var a Account
 
-	stmt, err := db.Prepare(fmt.Sprintf("SELECT id, name FROM account WHERE %v = ?", k))
+	stmt, err := dbh.Prepare(fmt.Sprintf("SELECT id, name FROM account WHERE %v = ?", k))
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
 		return a, err
@@ -65,14 +70,16 @@ func GetBy(db *sql.DB, k string, v string) (Account, error) {
 	return a, nil
 }
 
-func Get(db *sql.DB, id int64) (Account, error) {
-	return GetBy(db, "id", strconv.FormatInt(id, 10))
+func Get(id int64) (Account, error) {
+	return GetBy("id", strconv.FormatInt(id, 10))
 }
 
-func List(db *sql.DB, last int64, limit int64) ([]Account, error) {
+func List(last int64, limit int64) ([]Account, error) {
+	dbh, _ := db.Get()
+
 	var al = make([]Account, 0, limit)
 
-	stmt, err := db.Prepare("SELECT id, name FROM account WHERE id > ? LIMIT ?")
+	stmt, err := dbh.Prepare("SELECT id, name FROM account WHERE id > ? LIMIT ?")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
 		return al, err
