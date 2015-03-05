@@ -65,7 +65,16 @@ func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string)
 }
 
 func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	cl, err := charge.List(0, 100)
+	last, err := strconv.ParseInt(r.FormValue("last"), 10, 64)
+	if err != nil {
+		last = 0
+	}
+	limit, err := strconv.ParseInt(r.FormValue("limit"), 10, 64)
+	if err != nil {
+		limit = 100
+	}
+
+	cl, err := charge.List(last, limit)
 
 	return cl, err
 }
@@ -85,7 +94,16 @@ func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string
 }
 
 func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	al, err := account.List(0, 100)
+	last, err := strconv.ParseInt(r.FormValue("last"), 10, 64)
+	if err != nil {
+		last = 0
+	}
+	limit, err := strconv.ParseInt(r.FormValue("limit"), 10, 64)
+	if err != nil {
+		limit = 100
+	}
+
+	al, err := account.List(last, limit)
 
 	return al, err
 }
