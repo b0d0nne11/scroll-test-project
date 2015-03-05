@@ -30,6 +30,12 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 		}
 	}
 	aName := r.FormValue("account_name")
+	if aName == "" {
+		return nil, scroll.InvalidFormatError{
+			Field: "account_name",
+			Value: r.FormValue("account_name"),
+		}
+	}
 
 	a, err := account.GetBy("name", aName)
 	switch err.(type) {
