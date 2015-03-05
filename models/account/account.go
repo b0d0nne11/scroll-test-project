@@ -14,8 +14,8 @@ type Account struct {
 	Name string
 }
 
-func New(name string) Account {
-	return Account{
+func New(name string) *Account {
+	return &Account{
 		Name: name,
 	}
 }
@@ -44,7 +44,7 @@ func (a *Account) Save() error {
 	return nil
 }
 
-func GetBy(k string, v string) (Account, error) {
+func GetBy(k string, v string) (*Account, error) {
 	dbh, _ := db.Get()
 
 	var a Account
@@ -52,44 +52,44 @@ func GetBy(k string, v string) (Account, error) {
 	stmt, err := dbh.Prepare(fmt.Sprintf("SELECT id, name FROM account WHERE %v = ?", k))
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
-		return a, err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	err = stmt.QueryRow(v).Scan(&a.ID, &a.Name)
 	if err == sql.ErrNoRows {
-		return a, scroll.NotFoundError{
+		return nil, scroll.NotFoundError{
 			Description: "account not found",
 		}
 	}
 	if err != nil {
 		fmt.Printf("error reading account(%v=%v): %v\n", k, v, err)
-		return a, err
+		return nil, err
 	}
 
-	return a, nil
+	return &a, nil
 }
 
-func Get(id int64) (Account, error) {
+func Get(id int64) (*Account, error) {
 	return GetBy("id", strconv.FormatInt(id, 10))
 }
 
-func List(last int64, limit int64) ([]Account, error) {
+func List(last int64, limit int64) ([]*Account, error) {
 	dbh, _ := db.Get()
 
-	var al = make([]Account, 0, limit)
+	var al = make([]*Account, 0, limit)
 
 	stmt, err := dbh.Prepare("SELECT id, name FROM account WHERE id > ? LIMIT ?")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
-		return al, err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(last, limit)
 	if err != nil {
 		fmt.Printf("error listing accounts(%v, %v)", last, limit)
-		return al, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -97,9 +97,9 @@ func List(last int64, limit int64) ([]Account, error) {
 		err = rows.Scan(&a.ID, &a.Name)
 		if err != nil {
 			fmt.Printf("error listing accounts(%v, %v)", last, limit)
-			return al, err
+			return nil, err
 		}
-		al = append(al, a)
+		al = append(al, &a)
 	}
 
 	return al, nil

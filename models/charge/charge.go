@@ -17,8 +17,8 @@ type Charge struct {
 	Timestamp time.Time
 }
 
-func New(accountID int64, cents uint64, timestamp time.Time) Charge {
-	return Charge{
+func New(accountID int64, cents uint64, timestamp time.Time) *Charge {
+	return &Charge{
 		AccountID: accountID,
 		Cents:     cents,
 		Timestamp: timestamp,
@@ -49,7 +49,7 @@ func (c *Charge) Save() error {
 	return nil
 }
 
-func GetBy(k string, v string) (Charge, error) {
+func GetBy(k string, v string) (*Charge, error) {
 	dbh, _ := db.Get()
 
 	var c Charge
@@ -57,44 +57,44 @@ func GetBy(k string, v string) (Charge, error) {
 	stmt, err := dbh.Prepare(fmt.Sprintf("SELECT id, account_id, cents, timestamp FROM charge WHERE %v = ?", k))
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
-		return c, err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	err = stmt.QueryRow(v).Scan(&c.ID, &c.AccountID, &c.Cents, &c.Timestamp)
 	if err == sql.ErrNoRows {
-		return c, scroll.NotFoundError{
+		return nil, scroll.NotFoundError{
 			Description: "charge not found",
 		}
 	}
 	if err != nil {
 		fmt.Printf("error reading charge(%v=%v): %v\n", k, v, err)
-		return c, err
+		return nil, err
 	}
 
-	return c, nil
+	return &c, nil
 }
 
-func Get(id int64) (Charge, error) {
+func Get(id int64) (*Charge, error) {
 	return GetBy("id", strconv.FormatInt(id, 10))
 }
 
-func List(last int64, limit int64) ([]Charge, error) {
+func List(last int64, limit int64) ([]*Charge, error) {
 	dbh, _ := db.Get()
 
-	var cl = make([]Charge, 0, limit)
+	var cl = make([]*Charge, 0, limit)
 
 	stmt, err := dbh.Prepare("SELECT id, account_id, cents, timestamp FROM charge WHERE id > ? LIMIT ?")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
-		return cl, err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(last, limit)
 	if err != nil {
 		fmt.Printf("error listing charges(%v, %v)", last, limit)
-		return cl, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -102,9 +102,9 @@ func List(last int64, limit int64) ([]Charge, error) {
 		err = rows.Scan(&c.ID, &c.AccountID, &c.Cents, &c.Timestamp)
 		if err != nil {
 			fmt.Printf("error listing charges(%v, %v)", last, limit)
-			return cl, err
+			return nil, err
 		}
-		cl = append(cl, c)
+		cl = append(cl, &c)
 	}
 
 	return cl, nil
