@@ -3,9 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 
-	"github.com/b0d0nne11/scroll-test-project/models/charge"
 	"github.com/mailgun/scroll"
 	"github.com/mailgun/scroll/registry"
 )
@@ -32,30 +30,19 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("error connecting to db: %v\n", err))
 	}
-	_, err = db.Exec(charge.Schema)
-	if err != nil {
-		panic(fmt.Sprintf("error creating charge table: %v\n", err))
-	}
 	defer db.Close()
-
-	// Index
-	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/index"},
-		RawHandler: http.HandlerFunc(ReplyNotImplemented),
-	})
 
 	// List accounts
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/accounts/"},
-		RawHandler: http.HandlerFunc(ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/accounts/"},
+		Handler: ListAccounts,
 	})
 	// Get account
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/accounts/{accountId}"},
-		RawHandler: http.HandlerFunc(ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/accounts/{id}"},
+		Handler: GetAccount,
 	})
 
 	// List charges

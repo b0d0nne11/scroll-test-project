@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/b0d0nne11/scroll-test-project/models/account"
 	"github.com/b0d0nne11/scroll-test-project/models/charge"
 	"github.com/mailgun/scroll"
 )
@@ -28,8 +29,16 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 			Value: r.FormValue("timestamp"),
 		}
 	}
+	aName := r.FormValue("account_name")
 
-	c := charge.New(cents, timestamp)
+	a, err := account.GetBy(db, "name", aName)
+	switch err.(type) {
+	case scroll.NotFoundError:
+		a = account.New(aName)
+		err = a.Save(db)
+	}
+
+	c := charge.New(a.ID, cents, timestamp)
 	err = c.Save(db)
 
 	return c, err
@@ -53,4 +62,24 @@ func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]strin
 	cl, err := charge.List(db, 0, 100)
 
 	return cl, err
+}
+
+func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+	id, err := strconv.ParseInt(params["id"], 10, 64)
+	if err != nil {
+		return nil, scroll.InvalidFormatError{
+			Field: "id",
+			Value: params["id"],
+		}
+	}
+
+	a, err := account.Get(db, id)
+
+	return a, err
+}
+
+func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+	al, err := account.List(db, 0, 100)
+
+	return al, err
 }

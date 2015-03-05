@@ -14,7 +14,6 @@ func newDB() (*sql.DB, error) {
 		fmt.Printf("error opening db: %v\n", err)
 		return db, err
 	}
-
 	err = db.Ping()
 	if err != nil {
 		fmt.Printf("error pinging db: %v\n", err)
