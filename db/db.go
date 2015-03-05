@@ -12,7 +12,7 @@ var err error
 var dbconn *string = flag.String("db", "username:password@address/database", "Database connection string")
 
 func setup() (*sql.DB, error) {
-	dbh, err = sql.Open("mysql", fmt.Sprintf("%v?parseTime=true", *dbconn))
+	dbh, err = sql.Open("mysql", *dbconn+"?parseTime=true")
 	if err != nil {
 		fmt.Printf("error opening db: %v\n", err)
 		return dbh, err
