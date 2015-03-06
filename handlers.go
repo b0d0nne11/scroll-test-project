@@ -4,7 +4,6 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/b0d0nne11/scroll-test-project/models/account"
 	"github.com/b0d0nne11/scroll-test-project/models/charge"
@@ -16,26 +15,17 @@ func ReplyNotImplemented(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	cents, err := strconv.ParseUint(r.FormValue("cents"), 10, 64)
+	cents, err := scroll.GetIntField(r, "cents")
 	if err != nil {
-		return nil, scroll.InvalidFormatError{
-			Field: "cents",
-			Value: r.FormValue("cents"),
-		}
+		return nil, err
 	}
-	timestamp, err := time.Parse("2006-01-02T15:04:05", r.FormValue("timestamp"))
+	timestamp, err := scroll.GetTimestampField(r, "timestamp")
 	if err != nil {
-		return nil, scroll.InvalidFormatError{
-			Field: "timestamp",
-			Value: r.FormValue("timestamp"),
-		}
+		return nil, err
 	}
-	aName := r.FormValue("account_name")
-	if aName == "" {
-		return nil, scroll.InvalidFormatError{
-			Field: "account_name",
-			Value: r.FormValue("account_name"),
-		}
+	aName, err := scroll.GetStringField(r, "account_name")
+	if err != nil {
+		return nil, err
 	}
 
 	a, err := account.GetBy("name", aName)
@@ -63,15 +53,15 @@ func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string)
 }
 
 func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	last, err := strconv.ParseInt(r.FormValue("last"), 10, 64)
+	last, err := scroll.GetIntField(r, "last")
 	if err != nil {
 		last = 0
 	}
-	limit, err := strconv.ParseInt(r.FormValue("limit"), 10, 64)
+	limit, err := scroll.GetIntField(r, "limit")
 	if err != nil {
 		limit = 100
 	}
-	limit = int64(math.Min(1000, math.Max(0, float64(limit))))
+	limit = int(math.Min(1000, math.Max(0, float64(limit))))
 
 	return charge.List(last, limit)
 }
@@ -89,15 +79,15 @@ func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string
 }
 
 func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	last, err := strconv.ParseInt(r.FormValue("last"), 10, 64)
+	last, err := scroll.GetIntField(r, "last")
 	if err != nil {
 		last = 0
 	}
-	limit, err := strconv.ParseInt(r.FormValue("limit"), 10, 64)
+	limit, err := scroll.GetIntField(r, "limit")
 	if err != nil {
 		limit = 100
 	}
-	limit = int64(math.Min(1000, math.Max(0, float64(limit))))
+	limit = int(math.Min(1000, math.Max(0, float64(limit))))
 
 	return account.List(last, limit)
 }

@@ -13,11 +13,11 @@ import (
 type Charge struct {
 	ID        int64
 	AccountID int64
-	Cents     uint64
+	Cents     int
 	Timestamp time.Time
 }
 
-func New(accountID int64, cents uint64, timestamp time.Time) *Charge {
+func New(accountID int64, cents int, timestamp time.Time) *Charge {
 	return &Charge{
 		AccountID: accountID,
 		Cents:     cents,
@@ -79,7 +79,7 @@ func Get(id int64) (*Charge, error) {
 	return GetBy("id", strconv.FormatInt(id, 10))
 }
 
-func List(last int64, limit int64) ([]*Charge, error) {
+func List(last int, limit int) ([]*Charge, error) {
 	dbh, _ := db.Get()
 
 	var cl = make([]*Charge, 0, limit)

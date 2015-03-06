@@ -74,7 +74,7 @@ func Get(id int64) (*Account, error) {
 	return GetBy("id", strconv.FormatInt(id, 10))
 }
 
-func List(last int64, limit int64) ([]*Account, error) {
+func List(last int, limit int) ([]*Account, error) {
 	dbh, _ := db.Get()
 
 	var al = make([]*Account, 0, limit)
