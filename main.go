@@ -16,7 +16,8 @@ var port *int = flag.Int("p", 8080, "Port to listen on")
 var confPath *string = flag.String("c", "./conf.yml", "Path to conf file")
 
 type Config struct {
-	Logging []*log.LogConfig
+	Logging  []*log.LogConfig
+	Database db.DatabaseConfig
 }
 
 func main() {
@@ -44,7 +45,7 @@ func main() {
 	app := scroll.NewAppWithConfig(appConfig)
 
 	// Create the db pool
-	dbh, err := db.Get()
+	dbh, err := db.Init(conf.Database)
 	if err != nil {
 		panic(fmt.Sprintf("error connecting to db: %v\n", err))
 	}

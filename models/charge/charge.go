@@ -27,7 +27,7 @@ func New(accountID int64, cents int, timestamp time.Time) *Charge {
 }
 
 func (c *Charge) Save() (*Charge, error) {
-	dbh, _ := db.Get()
+	dbh := db.Get()
 
 	stmt, err := dbh.Prepare("INSERT INTO charge (account_id, cents, timestamp) VALUES ( ?, ?, ? )")
 	if err != nil {
@@ -51,7 +51,7 @@ func (c *Charge) Save() (*Charge, error) {
 }
 
 func findBy(k string, v string) (*Charge, error) {
-	dbh, _ := db.Get()
+	dbh := db.Get()
 
 	var c Charge
 
@@ -81,7 +81,7 @@ func Get(id int64) (*Charge, error) {
 }
 
 func List(last int, limit int) ([]*Charge, error) {
-	dbh, _ := db.Get()
+	dbh := db.Get()
 
 	var cl = make([]*Charge, 0, limit)
 

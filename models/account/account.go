@@ -22,7 +22,7 @@ func New(name string) *Account {
 }
 
 func (a *Account) Save() (*Account, error) {
-	dbh, _ := db.Get()
+	dbh := db.Get()
 
 	stmt, err := dbh.Prepare("INSERT INTO account (name) VALUES ( ? )")
 	if err != nil {
@@ -46,7 +46,7 @@ func (a *Account) Save() (*Account, error) {
 }
 
 func findBy(k string, v string) (*Account, error) {
-	dbh, _ := db.Get()
+	dbh := db.Get()
 
 	var a Account
 
@@ -80,7 +80,7 @@ func FindByName(name string) (*Account, error) {
 }
 
 func List(last int, limit int) ([]*Account, error) {
-	dbh, _ := db.Get()
+	dbh := db.Get()
 
 	var al = make([]*Account, 0, limit)
 
