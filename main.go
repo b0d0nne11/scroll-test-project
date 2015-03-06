@@ -5,16 +5,34 @@ import (
 	"fmt"
 
 	"github.com/b0d0nne11/scroll-test-project/db"
+	"github.com/mailgun/cfg"
+	"github.com/mailgun/log"
 	"github.com/mailgun/scroll"
 	"github.com/mailgun/scroll/registry"
 )
 
 var host *string = flag.String("h", "0.0.0.0", "Address to listen on")
 var port *int = flag.Int("p", 8080, "Port to listen on")
+var confPath *string = flag.String("c", "./conf.yml", "Path to conf file")
+
+type Config struct {
+	Logging []*log.LogConfig
+}
 
 func main() {
 	// Parse command line options
 	flag.Parse()
+
+	// Parse configuration file
+	conf := Config{}
+	err := cfg.LoadConfig(*confPath, &conf)
+	if err != nil {
+		panic(fmt.Sprintf("error loading conf file: %v\n", err))
+	}
+
+	// Initialize the logging package
+	log.Init(conf.Logging)
+	log.SetSeverity(log.SeverityInfo) // TODO: make this configurable
 
 	// Create the app
 	appConfig := scroll.AppConfig{

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/b0d0nne11/scroll-test-project/db"
+	"github.com/mailgun/log"
 	"github.com/mailgun/scroll"
 )
 
@@ -30,19 +31,19 @@ func (c *Charge) Save() (*Charge, error) {
 
 	stmt, err := dbh.Prepare("INSERT INTO charge (account_id, cents, timestamp) VALUES ( ?, ?, ? )")
 	if err != nil {
-		fmt.Printf("error preparing statement: %v\n", err)
+		log.Errorf("error preparing statement: %v\n", err)
 		return nil, err
 	}
 	defer stmt.Close()
 
 	res, err := stmt.Exec(c.AccountID, c.Cents, c.Timestamp)
 	if err != nil {
-		fmt.Printf("error creating %v: %v\n", c, err)
+		log.Errorf("error creating %v: %v\n", c, err)
 		return nil, err
 	}
 	c.ID, err = res.LastInsertId()
 	if err != nil {
-		fmt.Printf("error creating %v: %v\n", c, err)
+		log.Errorf("error creating %v: %v\n", c, err)
 		return nil, err
 	}
 
@@ -56,7 +57,7 @@ func findBy(k string, v string) (*Charge, error) {
 
 	stmt, err := dbh.Prepare(fmt.Sprintf("SELECT id, account_id, cents, timestamp FROM charge WHERE %v = ?", k))
 	if err != nil {
-		fmt.Printf("error preparing statement: %v\n", err)
+		log.Errorf("error preparing statement: %v\n", err)
 		return nil, err
 	}
 	defer stmt.Close()
@@ -68,7 +69,7 @@ func findBy(k string, v string) (*Charge, error) {
 		}
 	}
 	if err != nil {
-		fmt.Printf("error reading charge(%v=%v): %v\n", k, v, err)
+		log.Errorf("error reading charge(%v=%v): %v\n", k, v, err)
 		return nil, err
 	}
 
@@ -86,14 +87,14 @@ func List(last int, limit int) ([]*Charge, error) {
 
 	stmt, err := dbh.Prepare("SELECT id, account_id, cents, timestamp FROM charge WHERE id > ? LIMIT ?")
 	if err != nil {
-		fmt.Printf("error preparing statement: %v\n", err)
+		log.Errorf("error preparing statement: %v\n", err)
 		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(last, limit)
 	if err != nil {
-		fmt.Printf("error listing charges(%v, %v)", last, limit)
+		log.Errorf("error listing charges(%v, %v)", last, limit)
 		return nil, err
 	}
 
@@ -101,7 +102,7 @@ func List(last int, limit int) ([]*Charge, error) {
 		var c Charge
 		err = rows.Scan(&c.ID, &c.AccountID, &c.Cents, &c.Timestamp)
 		if err != nil {
-			fmt.Printf("error listing charges(%v, %v)", last, limit)
+			log.Errorf("error listing charges(%v, %v)", last, limit)
 			return nil, err
 		}
 		cl = append(cl, &c)
