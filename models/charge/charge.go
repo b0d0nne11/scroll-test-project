@@ -25,28 +25,28 @@ func New(accountID int64, cents uint64, timestamp time.Time) *Charge {
 	}
 }
 
-func (c *Charge) Save() error {
+func (c *Charge) Save() (*Charge, error) {
 	dbh, _ := db.Get()
 
 	stmt, err := dbh.Prepare("INSERT INTO charge (account_id, cents, timestamp) VALUES ( ?, ?, ? )")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
-		return err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	res, err := stmt.Exec(c.AccountID, c.Cents, c.Timestamp)
 	if err != nil {
 		fmt.Printf("error creating %v: %v\n", c, err)
-		return err
+		return nil, err
 	}
 	c.ID, err = res.LastInsertId()
 	if err != nil {
 		fmt.Printf("error creating %v: %v\n", c, err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return c, nil
 }
 
 func GetBy(k string, v string) (*Charge, error) {

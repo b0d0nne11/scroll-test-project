@@ -41,14 +41,13 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 	a, err := account.GetBy("name", aName)
 	switch err.(type) {
 	case scroll.NotFoundError:
-		a = account.New(aName)
-		err = a.Save()
+		a, err = account.New(aName).Save()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	c := charge.New(a.ID, cents, timestamp)
-	err = c.Save()
-
-	return c, err
+	return charge.New(a.ID, cents, timestamp).Save()
 }
 
 func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
@@ -60,9 +59,7 @@ func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string)
 		}
 	}
 
-	c, err := charge.Get(id)
-
-	return c, err
+	return charge.Get(id)
 }
 
 func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
@@ -76,9 +73,7 @@ func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]strin
 	}
 	limit = int64(math.Min(1000, math.Max(0, float64(limit))))
 
-	cl, err := charge.List(last, limit)
-
-	return cl, err
+	return charge.List(last, limit)
 }
 
 func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
@@ -90,9 +85,7 @@ func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string
 		}
 	}
 
-	a, err := account.Get(id)
-
-	return a, err
+	return account.Get(id)
 }
 
 func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
@@ -106,7 +99,5 @@ func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]stri
 	}
 	limit = int64(math.Min(1000, math.Max(0, float64(limit))))
 
-	al, err := account.List(last, limit)
-
-	return al, err
+	return account.List(last, limit)
 }

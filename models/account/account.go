@@ -20,28 +20,28 @@ func New(name string) *Account {
 	}
 }
 
-func (a *Account) Save() error {
+func (a *Account) Save() (*Account, error) {
 	dbh, _ := db.Get()
 
 	stmt, err := dbh.Prepare("INSERT INTO account (name) VALUES ( ? )")
 	if err != nil {
 		fmt.Printf("error preparing statement: %v\n", err)
-		return err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	res, err := stmt.Exec(a.Name)
 	if err != nil {
 		fmt.Printf("error creating %v: %v\n", a, err)
-		return err
+		return nil, err
 	}
 	a.ID, err = res.LastInsertId()
 	if err != nil {
 		fmt.Printf("error creating %v: %v\n", a, err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return a, nil
 }
 
 func GetBy(k string, v string) (*Account, error) {
