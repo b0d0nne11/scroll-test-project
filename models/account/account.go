@@ -44,7 +44,7 @@ func (a *Account) Save() (*Account, error) {
 	return a, nil
 }
 
-func GetBy(k string, v string) (*Account, error) {
+func findBy(k string, v string) (*Account, error) {
 	dbh, _ := db.Get()
 
 	var a Account
@@ -71,7 +71,11 @@ func GetBy(k string, v string) (*Account, error) {
 }
 
 func Get(id int64) (*Account, error) {
-	return GetBy("id", strconv.FormatInt(id, 10))
+	return findBy("id", strconv.FormatInt(id, 10))
+}
+
+func FindByName(name string) (*Account, error) {
+	return findBy("name", name)
 }
 
 func List(last int, limit int) ([]*Account, error) {

@@ -49,7 +49,7 @@ func (c *Charge) Save() (*Charge, error) {
 	return c, nil
 }
 
-func GetBy(k string, v string) (*Charge, error) {
+func findBy(k string, v string) (*Charge, error) {
 	dbh, _ := db.Get()
 
 	var c Charge
@@ -76,7 +76,7 @@ func GetBy(k string, v string) (*Charge, error) {
 }
 
 func Get(id int64) (*Charge, error) {
-	return GetBy("id", strconv.FormatInt(id, 10))
+	return findBy("id", strconv.FormatInt(id, 10))
 }
 
 func List(last int, limit int) ([]*Charge, error) {

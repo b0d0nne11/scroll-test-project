@@ -28,7 +28,7 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 		return nil, err
 	}
 
-	a, err := account.GetBy("name", aName)
+	a, err := account.FindByName(aName)
 	switch err.(type) {
 	case scroll.NotFoundError:
 		a, err = account.New(aName).Save()
