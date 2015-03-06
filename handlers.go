@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -73,6 +74,7 @@ func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]strin
 	if err != nil {
 		limit = 100
 	}
+	limit = int64(math.Min(1000, math.Max(0, float64(limit))))
 
 	cl, err := charge.List(last, limit)
 
@@ -102,6 +104,7 @@ func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]stri
 	if err != nil {
 		limit = 100
 	}
+	limit = int64(math.Min(1000, math.Max(0, float64(limit))))
 
 	al, err := account.List(last, limit)
 
