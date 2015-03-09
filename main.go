@@ -1,60 +1,86 @@
 package main
 
 import (
-	"net/http"
+	"flag"
+	"fmt"
 
-	"github.com/b0d0nne11/scroll-test-project/handlers"
+	"github.com/b0d0nne11/scroll-test-project/db"
+	"github.com/mailgun/cfg"
+	"github.com/mailgun/log"
 	"github.com/mailgun/scroll"
 	"github.com/mailgun/scroll/registry"
 )
 
+var host *string = flag.String("h", "0.0.0.0", "Address to listen on")
+var port *int = flag.Int("p", 8080, "Port to listen on")
+var confPath *string = flag.String("c", "./conf.yml", "Path to conf file")
+
+type Config struct {
+	Logging  []*log.LogConfig
+	Database db.DatabaseConfig
+}
+
 func main() {
+	// Parse command line options
+	flag.Parse()
+
+	// Parse configuration file
+	conf := Config{}
+	err := cfg.LoadConfig(*confPath, &conf)
+	if err != nil {
+		panic(fmt.Sprintf("error loading conf file: %v\n", err))
+	}
+
+	// Initialize the logging package
+	log.Init(conf.Logging)
+	log.SetSeverity(log.SeverityInfo) // TODO: make this configurable
+
 	// Create the app
 	appConfig := scroll.AppConfig{
 		Name:       "scroll-test-project",
-		ListenIP:   "0.0.0.0",
-		ListenPort: 8080,
+		ListenIP:   *host,
+		ListenPort: *port,
 		Registry:   &registry.NopRegistry{},
 	}
 	app := scroll.NewAppWithConfig(appConfig)
 
-	// Index
-	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/index"},
-		RawHandler: http.HandlerFunc(handlers.ReplyNotImplemented),
-	})
+	// Create the db pool
+	dbh, err := db.Init(conf.Database)
+	if err != nil {
+		panic(fmt.Sprintf("error connecting to db: %v\n", err))
+	}
+	defer dbh.Close()
 
 	// List accounts
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/accounts/"},
-		RawHandler: http.HandlerFunc(handlers.ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/accounts/"},
+		Handler: ListAccounts,
 	})
 	// Get account
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/accounts/{accountId}"},
-		RawHandler: http.HandlerFunc(handlers.ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/accounts/{id}"},
+		Handler: GetAccount,
 	})
 
 	// List charges
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/chages/"},
-		RawHandler: http.HandlerFunc(handlers.ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/charges/"},
+		Handler: ListCharges,
 	})
 	// Get charge
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"GET"},
-		Paths:      []string{"/api/v1/charges/{chargeId}"},
-		RawHandler: http.HandlerFunc(handlers.ReplyNotImplemented),
+		Methods: []string{"GET"},
+		Paths:   []string{"/api/v1/charges/{id}"},
+		Handler: GetCharge,
 	})
 	// Create charge
 	app.AddHandler(scroll.Spec{
-		Methods:    []string{"POST"},
-		Paths:      []string{"/api/v1/charges/"},
-		RawHandler: http.HandlerFunc(handlers.ReplyNotImplemented),
+		Methods: []string{"POST"},
+		Paths:   []string{"/api/v1/charges/"},
+		Handler: CreateCharge,
 	})
 
 	// Start the app
