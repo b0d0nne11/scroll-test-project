@@ -3,11 +3,6 @@
 	"GoVersion": "go1.3.3",
 	"Deps": [
 		{
-			"ImportPath": "github.com/go-sql-driver/mysql",
-			"Comment": "v1.2-88-ga197e5d",
-			"Rev": "a197e5d40516f2e9f74dcee085a5f2d4604e94df"
-		},
-		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
 		},
@@ -48,6 +43,11 @@
 		{
 			"ImportPath": "github.com/mailgun/timetools",
 			"Rev": "7e6055773c5137efbeb3bd2410d705fe10ab6bfd"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2015.01.24",
+			"Rev": "c6a7dce14133ccac2dcac3793f1d6e2ef048503a"
 		},
 		{
 			"ImportPath": "launchpad.net/goyaml",
