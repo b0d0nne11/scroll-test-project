@@ -3,7 +3,6 @@ package main
 import (
 	"math"
 	"net/http"
-	"strconv"
 
 	"github.com/b0d0nne11/scroll-test-project/models/account"
 	"github.com/b0d0nne11/scroll-test-project/models/charge"
@@ -32,24 +31,16 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 	switch err.(type) {
 	case scroll.NotFoundError:
 		a, err = account.New(aName).Save()
-		if err != nil {
-			return nil, err
-		}
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	return charge.New(a.ID, cents, timestamp).Save()
+	return charge.New(a, cents, timestamp).Save()
 }
 
 func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	id, err := strconv.ParseInt(params["id"], 10, 64)
-	if err != nil {
-		return nil, scroll.InvalidFormatError{
-			Field: "id",
-			Value: params["id"],
-		}
-	}
-
-	return charge.Get(id)
+	return charge.Get(params["id"])
 }
 
 func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
@@ -67,15 +58,7 @@ func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]strin
 }
 
 func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
-	id, err := strconv.ParseInt(params["id"], 10, 64)
-	if err != nil {
-		return nil, scroll.InvalidFormatError{
-			Field: "id",
-			Value: params["id"],
-		}
-	}
-
-	return account.Get(id)
+	return account.Get(params["id"])
 }
 
 func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {

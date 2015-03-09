@@ -1,42 +1,43 @@
 package db
 
 import (
-	"database/sql"
-	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/mailgun/log"
+	"gopkg.in/mgo.v2"
 )
 
-var dbh *sql.DB
+var dbh *mgo.Database
 
 type DatabaseConfig struct {
-	User     string
-	Password string
-	Address  string `config:"optional"`
+	User     string `config:"optional"`
+	Password string `config:"optional"`
+	Address  string
 	DB       string
 }
 
-func conn(conf DatabaseConfig) string {
-	return fmt.Sprintf("%v:%v@%v/%v?parseTime=true", conf.User, conf.Password, conf.Address, conf.DB)
-}
-
-func Init(conf DatabaseConfig) (*sql.DB, error) {
-	var err error
-	dbh, err = sql.Open("mysql", conn(conf))
+func Init(conf DatabaseConfig) (*mgo.Session, error) {
+	session, err := mgo.Dial(conf.Address)
 	if err != nil {
-		log.Errorf("error opening db: %v\n", err)
-		dbh = nil
+		log.Errorf("error opening db session: %v\n", err)
 		return nil, err
 	}
-	err = dbh.Ping()
+	err = session.Ping()
 	if err != nil {
-		log.Errorf("error pinging db: %v\n", err)
-		dbh = nil
+		log.Errorf("error pinging db session: %v\n", err)
 		return nil, err
 	}
-	return dbh, nil
+	dbh = session.DB(conf.DB)
+	if conf.User != "" {
+		err = dbh.Login(conf.User, conf.Password)
+		if err != nil {
+			log.Errorf("error logging into db: %v", err)
+			dbh = nil
+			return nil, err
+		}
+	}
+
+	return session, nil
 }
 
-func Get() *sql.DB {
+func Get() *mgo.Database {
 	return dbh
 }

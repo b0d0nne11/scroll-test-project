@@ -1,7 +1,7 @@
 logging:
   - name: console
 database:
-  user: john.doe
-  password: p@ssword
-  address: '' # localhost
+  user: ''
+  password: ''
+  address: localhost
   db: scroll

@@ -1,42 +1,29 @@
 package account
 
 import (
-	"database/sql"
-	"fmt"
-	"strconv"
-
 	"github.com/b0d0nne11/scroll-test-project/db"
 	"github.com/mailgun/log"
 	"github.com/mailgun/scroll"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Account struct {
-	ID   int64
+	ID   bson.ObjectId "_id"
 	Name string
 }
 
 func New(name string) *Account {
 	return &Account{
+		ID:   bson.NewObjectId(),
 		Name: name,
 	}
 }
 
 func (a *Account) Save() (*Account, error) {
-	dbh := db.Get()
+	collection := db.Get().C("account")
 
-	stmt, err := dbh.Prepare("INSERT INTO account (name) VALUES ( ? )")
-	if err != nil {
-		log.Errorf("error preparing statement: %v\n", err)
-		return nil, err
-	}
-	defer stmt.Close()
-
-	res, err := stmt.Exec(a.Name)
-	if err != nil {
-		log.Errorf("error creating %v: %v\n", a, err)
-		return nil, err
-	}
-	a.ID, err = res.LastInsertId()
+	err := collection.Insert(a)
 	if err != nil {
 		log.Errorf("error creating %v: %v\n", a, err)
 		return nil, err
@@ -45,23 +32,14 @@ func (a *Account) Save() (*Account, error) {
 	return a, nil
 }
 
-func findBy(k string, v string) (*Account, error) {
-	dbh := db.Get()
+func findBy(k string, v interface{}) (*Account, error) {
+	collection := db.Get().C("account")
 
 	var a Account
 
-	stmt, err := dbh.Prepare(fmt.Sprintf("SELECT id, name FROM account WHERE %v = ?", k))
-	if err != nil {
-		log.Errorf("error preparing statement: %v\n", err)
-		return nil, err
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(v).Scan(&a.ID, &a.Name)
-	if err == sql.ErrNoRows {
-		return nil, scroll.NotFoundError{
-			Description: "account not found",
-		}
+	err := collection.Find(bson.M{k: v}).One(&a)
+	if err == mgo.ErrNotFound {
+		return nil, scroll.NotFoundError{Description: "not found"}
 	}
 	if err != nil {
 		log.Errorf("error reading account(%v=%v): %v\n", k, v, err)
@@ -71,8 +49,14 @@ func findBy(k string, v string) (*Account, error) {
 	return &a, nil
 }
 
-func Get(id int64) (*Account, error) {
-	return findBy("id", strconv.FormatInt(id, 10))
+func Get(id string) (*Account, error) {
+	if !bson.IsObjectIdHex(id) {
+		return nil, scroll.InvalidFormatError{
+			Field: "id",
+			Value: "not an objectid",
+		}
+	}
+	return findBy("_id", bson.ObjectIdHex(id))
 }
 
 func FindByName(name string) (*Account, error) {
@@ -80,31 +64,14 @@ func FindByName(name string) (*Account, error) {
 }
 
 func List(last int, limit int) ([]*Account, error) {
-	dbh := db.Get()
+	collection := db.Get().C("account")
 
 	var al = make([]*Account, 0, limit)
 
-	stmt, err := dbh.Prepare("SELECT id, name FROM account WHERE id > ? LIMIT ?")
-	if err != nil {
-		log.Errorf("error preparing statement: %v\n", err)
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(last, limit)
+	err := collection.Find(nil).Skip(last).Limit(limit).All(&al)
 	if err != nil {
 		log.Errorf("error listing accounts(%v, %v)", last, limit)
 		return nil, err
-	}
-
-	for rows.Next() {
-		var a Account
-		err = rows.Scan(&a.ID, &a.Name)
-		if err != nil {
-			log.Errorf("error listing accounts(%v, %v)", last, limit)
-			return nil, err
-		}
-		al = append(al, &a)
 	}
 
 	return al, nil
