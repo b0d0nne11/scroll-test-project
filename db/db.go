@@ -1,3 +1,4 @@
+//  Packge db initializes and maintains database state information
 package db
 
 import (
@@ -7,6 +8,7 @@ import (
 
 var dbh *mgo.Database
 
+// DatabaseConfig contains database connection and configuration parameters
 type DatabaseConfig struct {
 	User     string `config:"optional"`
 	Password string `config:"optional"`
@@ -14,6 +16,17 @@ type DatabaseConfig struct {
 	DB       string
 }
 
+// Init initializes a database session and returns a session object. This
+// session object should be closed when the calling function finishes with it. It
+// has the side effect of saving the database object that is returned by the Get
+// function.
+//
+// Example:
+//     dbSession, err := db.Init(dbConfig)
+//     if err != nil {
+//     	 panic(fmt.Sprintf("error connecting to db: %v\n", err))
+//     }
+//     defer dbSession.Close()
 func Init(conf DatabaseConfig) (*mgo.Session, error) {
 	session, err := mgo.Dial(conf.Address)
 	if err != nil {
@@ -38,6 +51,7 @@ func Init(conf DatabaseConfig) (*mgo.Session, error) {
 	return session, nil
 }
 
+// Get returns a database object. It should only be called after Init.
 func Get() *mgo.Database {
 	return dbh
 }

@@ -1,3 +1,4 @@
+// Package account models account objects.
 package account
 
 import (
@@ -8,11 +9,13 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Account represents an account object.
 type Account struct {
 	ID   bson.ObjectId "_id"
 	Name string
 }
 
+// New returns a new account.
 func New(name string) *Account {
 	return &Account{
 		ID:   bson.NewObjectId(),
@@ -20,6 +23,7 @@ func New(name string) *Account {
 	}
 }
 
+// Save persists an account to the database.
 func (a *Account) Save() (*Account, error) {
 	collection := db.Get().C("account")
 
@@ -49,6 +53,7 @@ func findBy(k string, v interface{}) (*Account, error) {
 	return &a, nil
 }
 
+// Get returns an account with the given ID.
 func Get(id string) (*Account, error) {
 	if !bson.IsObjectIdHex(id) {
 		return nil, scroll.InvalidFormatError{
@@ -59,10 +64,12 @@ func Get(id string) (*Account, error) {
 	return findBy("_id", bson.ObjectIdHex(id))
 }
 
+// FindByName returns an account with a given name.
 func FindByName(name string) (*Account, error) {
 	return findBy("name", name)
 }
 
+// List returns a slice of `limit` accounts skipping the first `last` accounts.
 func List(last int, limit int) ([]*Account, error) {
 	collection := db.Get().C("account")
 

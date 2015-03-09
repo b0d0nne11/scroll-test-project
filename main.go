@@ -1,3 +1,4 @@
+// Package main initializes and runs the application
 package main
 
 import (
@@ -15,6 +16,7 @@ var host *string = flag.String("h", "0.0.0.0", "Address to listen on")
 var port *int = flag.Int("p", 8080, "Port to listen on")
 var confPath *string = flag.String("c", "./conf.yml", "Path to conf file")
 
+// Config contains application configration parameters
 type Config struct {
 	Logging  []*log.LogConfig
 	Database db.DatabaseConfig
@@ -44,43 +46,43 @@ func main() {
 	}
 	app := scroll.NewAppWithConfig(appConfig)
 
-	// Create the db pool
-	dbh, err := db.Init(conf.Database)
+	// Initialize the db session
+	dbSession, err := db.Init(conf.Database)
 	if err != nil {
 		panic(fmt.Sprintf("error connecting to db: %v\n", err))
 	}
-	defer dbh.Close()
+	defer dbSession.Close()
 
 	// List accounts
 	app.AddHandler(scroll.Spec{
 		Methods: []string{"GET"},
 		Paths:   []string{"/api/v1/accounts/"},
-		Handler: ListAccounts,
+		Handler: listAccounts,
 	})
 	// Get account
 	app.AddHandler(scroll.Spec{
 		Methods: []string{"GET"},
 		Paths:   []string{"/api/v1/accounts/{id}"},
-		Handler: GetAccount,
+		Handler: getAccount,
 	})
 
 	// List charges
 	app.AddHandler(scroll.Spec{
 		Methods: []string{"GET"},
 		Paths:   []string{"/api/v1/charges/"},
-		Handler: ListCharges,
+		Handler: listCharges,
 	})
 	// Get charge
 	app.AddHandler(scroll.Spec{
 		Methods: []string{"GET"},
 		Paths:   []string{"/api/v1/charges/{id}"},
-		Handler: GetCharge,
+		Handler: getCharge,
 	})
 	// Create charge
 	app.AddHandler(scroll.Spec{
 		Methods: []string{"POST"},
 		Paths:   []string{"/api/v1/charges/"},
-		Handler: CreateCharge,
+		Handler: createCharge,
 	})
 
 	// Start the app

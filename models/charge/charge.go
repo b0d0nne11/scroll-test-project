@@ -1,3 +1,4 @@
+// Package charge models charge objects.
 package charge
 
 import (
@@ -11,6 +12,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Charge represents a charge object for a specific account.
 type Charge struct {
 	ID        bson.ObjectId "_id"
 	Account   mgo.DBRef
@@ -18,6 +20,7 @@ type Charge struct {
 	Timestamp time.Time
 }
 
+// New returns a new charge.
 func New(account *account.Account, cents int, timestamp time.Time) *Charge {
 	return &Charge{
 		ID: bson.NewObjectId(),
@@ -31,6 +34,7 @@ func New(account *account.Account, cents int, timestamp time.Time) *Charge {
 	}
 }
 
+// Save persists a charge to the database.
 func (c *Charge) Save() (*Charge, error) {
 	collection := db.Get().C("charge")
 
@@ -60,6 +64,7 @@ func findBy(k string, v interface{}) (*Charge, error) {
 	return &c, nil
 }
 
+// Get returns a charge with the given ID.
 func Get(id string) (*Charge, error) {
 	if !bson.IsObjectIdHex(id) {
 		return nil, scroll.InvalidFormatError{
@@ -70,6 +75,7 @@ func Get(id string) (*Charge, error) {
 	return findBy("_id", bson.ObjectIdHex(id))
 }
 
+// List returns a slice of `limit` charges skipping the first `last` charges.
 func List(last int, limit int) ([]*Charge, error) {
 	collection := db.Get().C("charge")
 

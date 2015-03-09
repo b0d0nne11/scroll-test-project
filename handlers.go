@@ -9,11 +9,7 @@ import (
 	"github.com/mailgun/scroll"
 )
 
-func ReplyNotImplemented(w http.ResponseWriter, r *http.Request) {
-	scroll.Reply(w, scroll.Response{"message": "Not Implemented"}, http.StatusNotImplemented)
-}
-
-func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+func createCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
 	cents, err := scroll.GetIntField(r, "cents")
 	if err != nil {
 		return nil, err
@@ -39,11 +35,11 @@ func CreateCharge(w http.ResponseWriter, r *http.Request, params map[string]stri
 	return charge.New(a, cents, timestamp).Save()
 }
 
-func GetCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+func getCharge(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
 	return charge.Get(params["id"])
 }
 
-func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+func listCharges(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
 	last, err := scroll.GetIntField(r, "last")
 	if err != nil {
 		last = 0
@@ -57,11 +53,11 @@ func ListCharges(w http.ResponseWriter, r *http.Request, params map[string]strin
 	return charge.List(last, limit)
 }
 
-func GetAccount(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+func getAccount(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
 	return account.Get(params["id"])
 }
 
-func ListAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
+func listAccounts(w http.ResponseWriter, r *http.Request, params map[string]string) (interface{}, error) {
 	last, err := scroll.GetIntField(r, "last")
 	if err != nil {
 		last = 0
