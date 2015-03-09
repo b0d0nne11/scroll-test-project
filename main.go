@@ -12,12 +12,12 @@ import (
 	"github.com/mailgun/scroll/registry"
 )
 
-var host *string = flag.String("h", "0.0.0.0", "Address to listen on")
-var port *int = flag.Int("p", 8080, "Port to listen on")
 var confPath *string = flag.String("c", "./conf.yml", "Path to conf file")
 
 // Config contains application configration parameters
 type Config struct {
+	Hostname string
+	Port     int
 	Logging  []*log.LogConfig
 	Database db.DatabaseConfig
 }
@@ -40,8 +40,8 @@ func main() {
 	// Create the app
 	appConfig := scroll.AppConfig{
 		Name:       "scroll-test-project",
-		ListenIP:   *host,
-		ListenPort: *port,
+		ListenIP:   conf.Hostname,
+		ListenPort: conf.Port,
 		Registry:   &registry.NopRegistry{},
 	}
 	app := scroll.NewAppWithConfig(appConfig)

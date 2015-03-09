@@ -1,3 +1,5 @@
+hostname: localhost
+port: 8080
 logging:
   - name: console
 database:
